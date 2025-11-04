@@ -11,9 +11,10 @@ class MyHomePage extends StatelessWidget {
   // Menambahkan class ItemHomePage yang berisi tombol-tombol tertentu
   // Implementasi tombol-tombol yang sudah dibuat tadi
   final List<ItemHomepage> items = [
-    ItemHomepage("See Football News", Icons.newspaper),
-    ItemHomepage("Add News", Icons.add),
-    ItemHomepage("Logout", Icons.logout),
+    // Mengubah teks button dengan respective icons dan colors
+    ItemHomepage("All Products", Icons.list, Colors.blue),
+    ItemHomepage("My Products", Icons.shopping_bag, Colors.green),
+    ItemHomepage("Create Product", Icons.add_circle, Colors.red),
   ];
 
   // Mengintegrasikan infocard dan itemcard untuk ditampilkan di MyHomePage
@@ -25,7 +26,7 @@ class MyHomePage extends StatelessWidget {
       appBar: AppBar(
         // Judul aplikasi "Football News" dengan teks putih dan tebal.
         title: const Text(
-          'Football News',
+          'House of Champions',
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
         // Warna latar belakang AppBar diambil dari skema warna tema aplikasi.
@@ -60,7 +61,7 @@ class MyHomePage extends StatelessWidget {
                   const Padding(
                     padding: EdgeInsets.only(top: 16.0),
                     child: Text(
-                      'Selamat datang di Football News',
+                      'Selamat datang di House Of Champions',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 18.0,
@@ -130,8 +131,9 @@ class InfoCard extends StatelessWidget {
 class ItemHomepage {
   final String name;
   final IconData icon;
-
-  ItemHomepage(this.name, this.icon);
+  // Menambahkan attribute warna untuk itemHomePage
+  final Color color;
+  ItemHomepage(this.name, this.icon, this.color);
 }
 
 // Class untuk menampilkan tombol-tombol yang sudah dibuat
@@ -147,7 +149,8 @@ class ItemCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Material(
       // Menentukan warna latar belakang dari tema aplikasi.
-      color: Theme.of(context).colorScheme.secondary,
+      // Spesific color untuk item 
+      color: item.color,
       // Membuat sudut kartu melengkung.
       borderRadius: BorderRadius.circular(12),
 
@@ -186,4 +189,3 @@ class ItemCard extends StatelessWidget {
     );
   }
 }
-  
