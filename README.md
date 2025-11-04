@@ -168,6 +168,4 @@
   <span class="token punctuation">)</span><span class="token punctuation">;</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<h2 id="sourcedokumentasi-🌐">Source/Dokumentasi 🌐</h2>
-<p>[1]</p>
 
