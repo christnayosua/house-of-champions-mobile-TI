@@ -211,10 +211,11 @@ Text('Counter: 5', style: TextStyle(color: Colors.blue))
 [6] geeksforgeeks. (2023, Feb 14). *Difference Between Hot Reload and Hot Restart in Flutter*. Retrieved from https://www.geeksforgeeks.org/flutter/difference-between-hot-reload-and-hot-restart-in-flutter/
 
 
+
 ## Tugas Individu 8
 ***by Christna Yosua Rotinsulu - 2406495691***
 
-<h3>Navigasi di Flutter : Pilih Jalan yang Tepat ⚽</h3>
+<h3>Navigasi di Flutter : Pilih Jalan yang Tepat ⚽[1]</h3>
 <hr>
 
 Dalam Flutter, terdapat sebuah widget yang dapat membantu aplikasi untuk menerima *even* atau *request* dari *user* untuk berpindah halaman, yaitu **Navigator**. Cara kerja Navigator sendiri mirip dengan cara kerja struktur data **Stack**, seperti tumpukan riwayat halaman. Salah satu metode yang akan saya fokus untuk dibahas adalah **push** dan **pushReplacement**. 
@@ -226,24 +227,26 @@ Di sisi lain, terdapat metode yang sama-sama mengganti halaman ke halaman baru t
 **Lalu, bagaimana implementasinya dalam Flutter?** Berikut adalah contoh penerapan kedua metode tersebut dalam Flutter:
 
 ```dart
-// 1. Menggunakan push() untuk ke halaman detail produk
-onPressed: () {
-  Navigator.push(
-    context,
-    MaterialPageRoute(builder: (context) => ProductDetailScreen(product: product)),
-  );
-}
+// Push pada products_card.dart ketika ingin menavigasikan halaman ke form create product
+onTap: () {
+  if (item.name == "Create Product") {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const ProductFormPage()),
+    );
+  }
+},
 
-// 2. Menggunakan pushReplacement() setelah login
-onPressed: () {
+// Push replacement pada left_drawer.card ketika kembali ke homepage
+onTap: () {
   Navigator.pushReplacement(
     context,
-    MaterialPageRoute(builder: (context) => HomeScreen()),
+    MaterialPageRoute(builder: (context) => MyHomePage()),
   );
-}
+},
 ```
 
-<h3>Pondasi yang Kokoh : Struktur Halaman Konsisten 🏗️</h3>
+<h3>Pondasi yang Kokoh : Struktur Halaman Konsisten 🏗️ [2]</h3>
 <hr>
 
 **Scaffold,  Appbar,** dan **Drawer** adalah widget yang dapat saya gunakan untuk membuat struktur halaman yang konsisten pada aplikasi mobile saya. Melalui **Scaffold**, saya dapat menempatkan komponen utama aplikasi mobile saya, seperti AppBar, Drawer, dan body pada sebuah kanvas yang disediakan oleh widget **Scaffold**. Di sisi lain, saya dapat menampilkan beberapa tombol, seperti tombol *back* untuk kembali ke halaman sebelumnya, secara otomatis menggunakan widget **AppBar** yang saya letakkan di properti **appBar** pada widget **Scaffold**. Selain itu, **AppBar** dapat menampilkan menu drawer yang telah saya buat untuk menampilkan navigasi bar yang akan menampilkan juga judul halaman dan aksi global, seperti ikon keranjang belanja atau ikon show products. **Drawer**, seperti yang sempat saya singgung sebelumnya, adalah widget yang dapat saya gunakan untuk menampilkan menu samping atau *navigasi bar* untuk menuju ke beberapa halaman, seperti Beranda, Kategori, Profil Pengguna, atau Pengaturan. Widget ini dapat saya letakkan di properti `drawer` pada widget **Scaffold**.
@@ -251,82 +254,123 @@ onPressed: () {
 **Lalu, bagaimana struktur hierarki dari widget-widget tersebut?** Berikut adalah contoh implementasinya dalam Flutter:
 
 ```dart
-// File: home_screen.dart
-import 'package:flutter/material.dart';
+// Pattern yang digunakan di semua halaman
+return Scaffold(
+  appBar: AppBar(
+    title: const Text('House of Champions'),
+    backgroundColor: Colors.grey[850],
+    foregroundColor: Colors.white,
+  ),
+  drawer: LeftDrawer(), // Konsisten di semua halaman
+  body: SingleChildScrollView(
+    child: Column(
+      // Konten halaman
+    ),
+  ),
+);
 
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+// MyHomePage - Homepage
+Scaffold(
+  appBar: AppBar(title: Text('House of Champions')),
+  drawer: LeftDrawer(),
+  body: // grid products
+)
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      // 1. AppBar untuk judul dan aksi
-      appBar: AppBar(
-        title: const Text('Football Shop'),
-        backgroundColor: Colors.green[800],
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.shopping_cart),
-            onPressed: () {
-              // Navigasi ke keranjang
-              Navigator.push(context, MaterialPageRoute(builder: (context) => CartScreen()));
-            },
-          ),
-        ],
-      ),
-
-      // 2. Drawer untuk menu navigasi
-      drawer: const ShopDrawer(),
-
-      // 3. Body untuk konten utama
-      body: const ProductGrid(),
-    );
-  }
-}
-
-// File: shop_drawer.dart (Widget Drawer Kustom)
-class ShopDrawer extends StatelessWidget {
-  const ShopDrawer({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Drawer(
-      child: ListView(
-        padding: EdgeInsets.zero,
-        children: [
-          const DrawerHeader(
-            decoration: BoxDecoration(
-              color: Colors.green,
-            ),
-            child: Text('Football Shop Menu'),
-          ),
-          ListTile(
-            leading: const Icon(Icons.home),
-            title: const Text('Beranda'),
-            onTap: () {
-              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomeScreen()));
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.shopping_bag),
-            title: const Text('Produk'),
-            onTap: () {
-              // Navigasi ke halaman produk
-            },
-          ),
-        ],
-      ),
-    );
-  }
-}
+// ProductFormPage - Form page 
+Scaffold(
+  appBar: AppBar(title: Text('Tambah Produk')),
+  drawer: LeftDrawer(), // Sama dengan homepage
+  body: // form inputs
+)
 ```
 
-**Layout yang Efisien dan Elegan: Seni dalam Menata Ruang Aplikasi Mobile 🎨**
+**Layout yang Efisien dan Elegan: Seni dalam Menata Ruang Aplikasi Mobile 🎨 [3]**
 <hr>
 
 Dalam konteks desain antarmuka, **layout widget**, seperti `Padding`, `SingleChildScrollView`, dan `ListView`, mempunyai kelebihan ketika menampilkan elemen-elemen di form aplikasi mobile saya. Melalui **Padding**, saya bisa membuat sebuah ruang kosong di sekitar child-nya sehingga tampilannya tidak terlalu menempel di pinggir layar dan lebih nyaman untuk dilihat *user*. Di sisi lain, saya dapat menambahkan fitur agar widget child-nya dapat di-*scroll* menggunakan **SingleChildScrollView** sehingga beberapa field input yang mungkin tertutup keyboard di layar kecil dapat terlihat dengan **scroll screen** ke bawah atau atas. Selain itu, saya pun dapat membuat widget scrollable yang paling efisien untuk daftar item, termasuk form panjang, menggunakan **ListView** yang akan me-render elemen yang terlihat di layar sehingga lebih hemat untuk kapasitas penggunaan memori. 
 
-<h3>Biarkan Warna yang Bercerita: Cara Membangun Brand Football Shop yang Konsisten 👟</h3>
+**Lalu, bagaimana implementasi yang telah saya lakukan pada aplikasi mobile saya?** Berikut adalah penerapan yang telah saya lakukan pada aplikasi mobile saya:
+```dart
+// Contoh penggunaan Padding untuk spacing konsisten
+Padding(
+  padding: const EdgeInsets.all(8.0), // Konsisten 8.0
+  child: TextFormField(
+    decoration: InputDecoration(...),
+  ),
+),
+
+// Di ProductFormPage - menghindari overflow keyboard
+body: SingleChildScrollView(
+  child: Column(
+    children: [
+      // Semua form fields
+    ],
+  ),
+),
+
+// GridView untuk grid layout (di MyHomePage)
+GridView.count(
+  crossAxisCount: 3,
+  children: items.map((item) => ItemCard(item)).toList(),
+)
+```
+
+<h3>Biarkan Warna yang Bercerita: Cara Membangun Brand Football Shop yang Konsisten 👟 [4]</h3>
 <hr>
 
 Untuk menciptakan identitas visual yang konsisten, kuncinya adalah dengan menggunakan widget `ThemeData`. Pada tugas ini, saya perlu agar Football Shop saya mempunyai brand dengan warna hijau yang dapat saya definisikan warnanya di `MaterialApp`. Implikasi yang diberikan oleh `ThemeData` membuat semua widget di aplikasi saya secara otomatis menggunakan warna dari tema yang telah saya definisikan sehingga memberikan kepastian bahwa brand hijau Football Shop akan tampil secara konsisten di seluruh bagian. 
+
+**Lalu, bagaimana implementasi pada aplikasi mobile saya?** Implementasi yang telah saya lakukan pada tugas individu ini adalah sebagai berikut:
+
+```dart
+backgroundColor: Colors.grey[900], // Dark background
+appBar: AppBar(
+  backgroundColor: Colors.grey[850], // Slightly lighter
+  title: Text('House of Champions', style: TextStyle(color: Colors.white)),
+),
+// InfoCard dengan dark theme
+Card(
+  color: Colors.grey[800], // Card background
+  child: Column(
+    children: [
+      Text(title, style: TextStyle(color: Colors.white)), // White text
+      Text(content, style: TextStyle(color: Colors.grey[300])), // Light grey
+    ],
+  ),
+)
+
+// Background gradient dark
+backgroundColor: Colors.grey[900],
+Container(
+  decoration: BoxDecoration(
+    gradient: LinearGradient(
+      colors: [Colors.grey[850]!, Colors.grey[900]!],
+    ),
+  ),
+)
+
+// Form fields dengan dark theme
+TextFormField(
+  style: TextStyle(color: Colors.white), // White input text
+  decoration: InputDecoration(
+    labelStyle: TextStyle(color: Colors.amber), // Amber labels
+    filled: true,
+    fillColor: Colors.grey[800], // Dark fill
+    border: OutlineInputBorder(
+      borderSide: BorderSide(color: Colors.blue[400]!), // Blue border
+    ),
+  ),
+)
+```
+
+## Referensi
+[1] Flutter docs. (30, October 2025). *Navigation and Routing*. Retrieved from https://docs.flutter.dev/ui/navigation
+[2] Umar, B. (1, December 2025). *Scaffold dan AppBar: Membuat Struktur Aplikasi Flutter — part 10*. Retrieved from https://medium.com/@basriumar/scaffold-dan-appbar-membuat-struktur-aplikasi-flutter-part-10-43cb93d145a2
+[3] Flutter docs. (28, October 2025). *Layout in Flutter*. Retrieved from https://docs.flutter.dev/ui/layout
+[4] Flutter docs. (23, October 2025). *Colors Class*. Retrieved from https://api.flutter.dev/flutter/material/Colors-class.html
+
+## Template Code 👨‍💻
+Kode yang saya gunakan pada tugas individu ini berasal dari tutorial dan saya melakukan beberapa modifikasi yang sesuai dan visualisasi yang menarik untuk pengguna aplikasi mobile saya. 
+
+**Source:** 
+Tim Dosen dan Asdos PBP Fasilkom 2025. (2025). *Tutorial 7: Flutter Navigation, Layouts, Forms, and Input Elements*. Retrieved from https://pbp-fasilkom-ui.github.io/ganjil-2026/docs/tutorial-7
