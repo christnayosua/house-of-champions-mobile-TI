@@ -13,22 +13,23 @@ class LeftDrawer extends StatelessWidget {
           const DrawerHeader(            
             decoration: BoxDecoration(color: Colors.blue),
             child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  'Football News',
+                  'House Of Champions 🏆',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    fontSize: 30,
+                    fontSize: 24,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                   ),
                 ),
                 Padding(padding: EdgeInsets.all(10)),
                 Text(
-                  "Seluruh berita sepak bola terkini di sini!",                
+                  "Toko merchandise football kepercayaan warga Indonesia ⚽!",                
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    fontSize: 15,
+                    fontSize: 14,
                     fontWeight: FontWeight.normal,
                     color: Colors.white,
                   ),
@@ -38,7 +39,7 @@ class LeftDrawer extends StatelessWidget {
           ),
           ListTile(
             leading: const Icon(Icons.home_outlined),
-            title: const Text('Home'),
+            title: const Text('Home Page'),
             // Bagian redirection ke MyHomePage
             onTap: () {
               Navigator.pushReplacement(
@@ -48,8 +49,8 @@ class LeftDrawer extends StatelessWidget {
             },
           ),
           ListTile(
-            leading: const Icon(Icons.post_add),
-            title: const Text('Add News'),
+            leading: const Icon(Icons.add_shopping_cart),
+            title: const Text('Add Products'),
             // Bagian redirection ke NewsFormPage
             onTap: () {
               /*             
@@ -57,13 +58,13 @@ class LeftDrawer extends StatelessWidget {
               */
               Navigator.pushReplacement(
                 context, 
-                MaterialPageRoute(builder: (context) => NewsFormPage()),
+                MaterialPageRoute(builder: (context) => ProductFormPage()),
               );
             },
-          ),          
+          ),
           ListTile(
-            leading: const Icon(Icons.newspaper),
-            title: const Text('See All News'),                        
+            leading: const Icon(Icons.shopping_cart),
+            title: const Text('See All Products'),                        
           )
         ],
       ),

@@ -209,3 +209,124 @@ Text('Counter: 5', style: TextStyle(color: Colors.blue))
 [4] kutu.dev. (2020, Sept 28). *Apa itu Stateless dan Stateful Application*. Retrieved from https://kutu.dev/artikel/apa-itu-stateless-vs-stateful
 [5] Flutter. (2025, Oct 10). *BuildContext Class*. Retrieved from https://api.flutter.dev/flutter/widgets/BuildContext-class.html
 [6] geeksforgeeks. (2023, Feb 14). *Difference Between Hot Reload and Hot Restart in Flutter*. Retrieved from https://www.geeksforgeeks.org/flutter/difference-between-hot-reload-and-hot-restart-in-flutter/
+
+
+## Tugas Individu 8
+***by Christna Yosua Rotinsulu - 2406495691***
+
+<h3>Navigasi di Flutter : Pilih Jalan yang Tepat ⚽</h3>
+<hr>
+
+Dalam Flutter, terdapat sebuah widget yang dapat membantu aplikasi untuk menerima *even* atau *request* dari *user* untuk berpindah halaman, yaitu **Navigator**. Cara kerja Navigator sendiri mirip dengan cara kerja struktur data **Stack**, seperti tumpukan riwayat halaman. Salah satu metode yang akan saya fokus untuk dibahas adalah **push** dan **pushReplacement**. 
+
+**Push** adalah metode dari widget Navigator di mana metode ini akan menambahkan halaman baru di **atas** halaman saat ini. Metode ini memungkinkan *user* untuk melakukan **pop** untuk kembali ke halaman sebelumnya dengan tombol *back* yang tersedia (*implementasinya tergantung dari developer aplikasi tersebutt*). Metode ini, pada aplikasi mobile yang sedang saya buat, sangat idela untuk mengatur alur yang membutuhkan navigasi mundur, seperti dari **halaman beranda** menuju ke **detail produk**, atau **keranjang belanja** ke **halaman checkout** (*belum diimplementasikan pada tugas ini*). 
+
+Di sisi lain, terdapat metode yang sama-sama mengganti halaman ke halaman baru tetapi halaman sebelumnya **dihapus** dari stack, yaitu **pushReplacement**. Metode ini biasanya diimplementasikan untuk alur yang tidak memungkinkan atau tidak perlu kembali ke halaman selanjutnya. Berdasarkan definisi tersebut, metode ini sangat ideal untuk diimplementasikan pada saat **login berhasil**, lalu **halaman login** diganti dengan **halaman beranda** atau, untuk *advance application mobile*, ketika **order selesai atau transaksi selesai**, maka halaman konfirmasi akan diganti dengan **halaman status sukses** (*mirip aplikasi e-banking atau e-commerce modern saat ini*).
+
+**Lalu, bagaimana implementasinya dalam Flutter?** Berikut adalah contoh penerapan kedua metode tersebut dalam Flutter:
+
+```dart
+// 1. Menggunakan push() untuk ke halaman detail produk
+onPressed: () {
+  Navigator.push(
+    context,
+    MaterialPageRoute(builder: (context) => ProductDetailScreen(product: product)),
+  );
+}
+
+// 2. Menggunakan pushReplacement() setelah login
+onPressed: () {
+  Navigator.pushReplacement(
+    context,
+    MaterialPageRoute(builder: (context) => HomeScreen()),
+  );
+}
+```
+
+<h3>Pondasi yang Kokoh : Struktur Halaman Konsisten 🏗️</h3>
+<hr>
+
+**Scaffold,  Appbar,** dan **Drawer** adalah widget yang dapat saya gunakan untuk membuat struktur halaman yang konsisten pada aplikasi mobile saya. Melalui **Scaffold**, saya dapat menempatkan komponen utama aplikasi mobile saya, seperti AppBar, Drawer, dan body pada sebuah kanvas yang disediakan oleh widget **Scaffold**. Di sisi lain, saya dapat menampilkan beberapa tombol, seperti tombol *back* untuk kembali ke halaman sebelumnya, secara otomatis menggunakan widget **AppBar** yang saya letakkan di properti **appBar** pada widget **Scaffold**. Selain itu, **AppBar** dapat menampilkan menu drawer yang telah saya buat untuk menampilkan navigasi bar yang akan menampilkan juga judul halaman dan aksi global, seperti ikon keranjang belanja atau ikon show products. **Drawer**, seperti yang sempat saya singgung sebelumnya, adalah widget yang dapat saya gunakan untuk menampilkan menu samping atau *navigasi bar* untuk menuju ke beberapa halaman, seperti Beranda, Kategori, Profil Pengguna, atau Pengaturan. Widget ini dapat saya letakkan di properti `drawer` pada widget **Scaffold**.
+
+**Lalu, bagaimana struktur hierarki dari widget-widget tersebut?** Berikut adalah contoh implementasinya dalam Flutter:
+
+```dart
+// File: home_screen.dart
+import 'package:flutter/material.dart';
+
+class HomeScreen extends StatelessWidget {
+  const HomeScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      // 1. AppBar untuk judul dan aksi
+      appBar: AppBar(
+        title: const Text('Football Shop'),
+        backgroundColor: Colors.green[800],
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.shopping_cart),
+            onPressed: () {
+              // Navigasi ke keranjang
+              Navigator.push(context, MaterialPageRoute(builder: (context) => CartScreen()));
+            },
+          ),
+        ],
+      ),
+
+      // 2. Drawer untuk menu navigasi
+      drawer: const ShopDrawer(),
+
+      // 3. Body untuk konten utama
+      body: const ProductGrid(),
+    );
+  }
+}
+
+// File: shop_drawer.dart (Widget Drawer Kustom)
+class ShopDrawer extends StatelessWidget {
+  const ShopDrawer({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Drawer(
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: [
+          const DrawerHeader(
+            decoration: BoxDecoration(
+              color: Colors.green,
+            ),
+            child: Text('Football Shop Menu'),
+          ),
+          ListTile(
+            leading: const Icon(Icons.home),
+            title: const Text('Beranda'),
+            onTap: () {
+              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomeScreen()));
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.shopping_bag),
+            title: const Text('Produk'),
+            onTap: () {
+              // Navigasi ke halaman produk
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
+```
+
+**Layout yang Efisien dan Elegan: Seni dalam Menata Ruang Aplikasi Mobile 🎨**
+<hr>
+
+Dalam konteks desain antarmuka, **layout widget**, seperti `Padding`, `SingleChildScrollView`, dan `ListView`, mempunyai kelebihan ketika menampilkan elemen-elemen di form aplikasi mobile saya. Melalui **Padding**, saya bisa membuat sebuah ruang kosong di sekitar child-nya sehingga tampilannya tidak terlalu menempel di pinggir layar dan lebih nyaman untuk dilihat *user*. Di sisi lain, saya dapat menambahkan fitur agar widget child-nya dapat di-*scroll* menggunakan **SingleChildScrollView** sehingga beberapa field input yang mungkin tertutup keyboard di layar kecil dapat terlihat dengan **scroll screen** ke bawah atau atas. Selain itu, saya pun dapat membuat widget scrollable yang paling efisien untuk daftar item, termasuk form panjang, menggunakan **ListView** yang akan me-render elemen yang terlihat di layar sehingga lebih hemat untuk kapasitas penggunaan memori. 
+
+<h3>Biarkan Warna yang Bercerita: Cara Membangun Brand Football Shop yang Konsisten 👟</h3>
+<hr>
+
+Untuk menciptakan identitas visual yang konsisten, kuncinya adalah dengan menggunakan widget `ThemeData`. Pada tugas ini, saya perlu agar Football Shop saya mempunyai brand dengan warna hijau yang dapat saya definisikan warnanya di `MaterialApp`. Implikasi yang diberikan oleh `ThemeData` membuat semua widget di aplikasi saya secara otomatis menggunakan warna dari tema yang telah saya definisikan sehingga memberikan kepastian bahwa brand hijau Football Shop akan tampil secara konsisten di seluruh bagian. 

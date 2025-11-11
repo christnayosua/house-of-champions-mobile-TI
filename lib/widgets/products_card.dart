@@ -15,7 +15,7 @@ class ItemCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Material(
       // Menentukan warna latar belakang dari tema aplikasi.
-      color: Theme.of(context).colorScheme.secondary,
+      color: item.color,
       // Membuat sudut kartu melengkung.
       borderRadius: BorderRadius.circular(12),
 
@@ -30,12 +30,14 @@ class ItemCard extends StatelessWidget {
                 content: Text("Kamu telah menekan tombol ${item.name}!"),
               ),
             );
-          if (item.name == "Tambah berita") {
-            Navigator.push(context,
-              MaterialPageRoute(builder: (context) => const NewsFormPage())
+          // Menambahkan navigasi untuk membuat produk baru
+          if (item.name == "Create Product") {
+            Navigator.push(context, 
+              MaterialPageRoute(builder: (context) => const ProductFormPage()),
             );
           }
         },
+
         // Container untuk menyimpan Icon dan Text
         child: Container(
           padding: const EdgeInsets.all(8),
