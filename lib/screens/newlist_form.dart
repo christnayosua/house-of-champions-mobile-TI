@@ -362,6 +362,7 @@ class _ProductFormPageState extends State<ProductFormPage> {
                                     children: [
                                       _buildDialogItem('Nama Produk', _name),
                                       _buildDialogItem('Harga', 'Rp $_price'),
+                                      _buildDialogItem('Deskripsi', 'Rp $_description'),
                                       _buildDialogItem('Kategori', _category),
                                       _buildDialogItem('Spesifikasi', _specification),
                                       _buildDialogItem('Thumbnail', _thumbnail.isEmpty ? 'Tidak ada' : _thumbnail),
