@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:house_of_champions/screens/menu.dart';
 import 'package:house_of_champions/screens/newlist_form.dart';
+import 'package:house_of_champions/screens/products_entry_list.dart';
 
 class LeftDrawer extends StatelessWidget {
   const LeftDrawer({super.key});
@@ -63,9 +64,16 @@ class LeftDrawer extends StatelessWidget {
             },
           ),
           ListTile(
-            leading: const Icon(Icons.shopping_cart),
-            title: const Text('See All Products'),                        
-          )
+              leading: const Icon(Icons.add_reaction_rounded),
+              title: const Text('Products List'),
+              onTap: () {
+                  // Route to news list page
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const ProductsEntryListPage()),
+                  );
+              },
+          ),
         ],
       ),
     );
