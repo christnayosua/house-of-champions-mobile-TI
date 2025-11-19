@@ -137,7 +137,7 @@ class ItemCard extends StatelessWidget {
       case "Create Product":
         _navigateToCreateProduct(context);
         break;
-      case "See House Of Champions Products":
+      case "My Products":
         _navigateToProductsList(context);
         break;
       case "Logout":
