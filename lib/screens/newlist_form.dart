@@ -1,4 +1,4 @@
-// ignore_for_file: deprecated_member_use, unused_import, use_build_context_synchronously, prefer_final_fields
+// ignore_for_file: deprecated_member_use, unused_import, use_build_context_synchronously, prefer_final_fields, avoid_print
 
 import 'package:flutter/material.dart';
 import 'package:house_of_champions/widgets/left_drawer.dart';
@@ -10,6 +10,13 @@ import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:house_of_champions/screens/menu.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
+/// [ProductFormPage] - Halaman untuk membuat produk baru
+/// 
+/// Fitur:
+/// - Form input produk dengan validasi
+/// - Integrasi dengan endpoint Django create_product_flutter
+/// - Support multiple environment (Web & Android)
+/// - Error handling yang komprehensif
 class ProductFormPage extends StatefulWidget {
   const ProductFormPage({super.key});
 
@@ -22,6 +29,7 @@ class _ProductFormPageState extends State<ProductFormPage> {
   final _formKey = GlobalKey<FormState>();
 
   /// Variabel untuk menyimpan data produk
+  /// Sesuai dengan model Products di Django
   String _name = "";
   int _price = 0;
   String _description = "";
@@ -35,7 +43,7 @@ class _ProductFormPageState extends State<ProductFormPage> {
   int _stock = 0;
   double _rating = 0.0;
 
-  /// Daftar kategori yang sesuai dengan model Django
+  /// Daftar kategori yang sesuai dengan CATEGORY_CHOICES di model Django
   final List<String> _categories = [
     'transfer',
     'update',
@@ -50,12 +58,16 @@ class _ProductFormPageState extends State<ProductFormPage> {
     'derby'
   ];
 
-  /// Base URL configuration untuk environment yang berbeda
+  /// Mendapatkan base URL berdasarkan platform
+  /// 
+  /// Returns:
+  /// - 'http://localhost:8000' untuk web
+  /// - 'http://10.0.2.2:8000' untuk Android emulator
   String get _baseUrl {
     if (kIsWeb) {
       return 'http://localhost:8000';
     } else {
-      return 'http://10.0.2.2:8000'; // Untuk Android emulator
+      return 'http://10.0.2.2:8000';
     }
   }
 
@@ -67,7 +79,7 @@ class _ProductFormPageState extends State<ProductFormPage> {
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
         title: const Text(
-          'Tambah Produk Baru',
+          'Tambah Berita Baru',
           style: TextStyle(
             fontWeight: FontWeight.bold,
             color: Colors.white,
@@ -144,13 +156,13 @@ class _ProductFormPageState extends State<ProductFormPage> {
         child: Column(
           children: [
             Icon(
-              Icons.add_business_rounded,
+              Icons.article_rounded,
               size: 48,
               color: Colors.amber[400],
             ),
             const SizedBox(height: 12),
             const Text(
-              'Tambah Produk Baru',
+              'Tambah Berita Baru',
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
@@ -159,7 +171,7 @@ class _ProductFormPageState extends State<ProductFormPage> {
             ),
             const SizedBox(height: 8),
             const Text(
-              'Lengkapi informasi produk untuk ditambahkan ke katalog',
+              'Lengkapi informasi berita untuk ditambahkan ke katalog',
               style: TextStyle(
                 fontSize: 14,
                 color: Colors.white70,
@@ -172,7 +184,7 @@ class _ProductFormPageState extends State<ProductFormPage> {
     );
   }
 
-  /// Field untuk nama produk
+  /// Field untuk nama produk/berita
   Widget _buildProductNameField() {
     return Card(
       elevation: 2,
@@ -183,7 +195,7 @@ class _ProductFormPageState extends State<ProductFormPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Nama Produk *',
+              'Judul Berita *',
               style: TextStyle(
                 fontWeight: FontWeight.w600,
                 color: Colors.blue[800],
@@ -193,7 +205,7 @@ class _ProductFormPageState extends State<ProductFormPage> {
             const SizedBox(height: 8),
             TextFormField(
               decoration: InputDecoration(
-                hintText: 'Masukkan nama produk',
+                hintText: 'Masukkan judul berita',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
                   borderSide: BorderSide(color: Colors.grey[400]!),
@@ -202,15 +214,15 @@ class _ProductFormPageState extends State<ProductFormPage> {
                   borderRadius: BorderRadius.circular(8),
                   borderSide: BorderSide(color: Colors.blue[400]!),
                 ),
-                prefixIcon: Icon(Icons.shopping_bag, color: Colors.blue[600]),
+                prefixIcon: Icon(Icons.title, color: Colors.blue[600]),
               ),
               onChanged: (value) => setState(() => _name = value),
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return "Nama produk wajib diisi";
+                  return "Judul berita wajib diisi";
                 }
                 if (value.length < 3) {
-                  return "Nama produk minimal 3 karakter";
+                  return "Judul berita minimal 3 karakter";
                 }
                 return null;
               },
@@ -232,7 +244,7 @@ class _ProductFormPageState extends State<ProductFormPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Harga Produk *',
+              'Harga *',
               style: TextStyle(
                 fontWeight: FontWeight.w600,
                 color: Colors.blue[800],
@@ -243,7 +255,7 @@ class _ProductFormPageState extends State<ProductFormPage> {
             TextFormField(
               keyboardType: TextInputType.number,
               decoration: InputDecoration(
-                hintText: 'Masukkan harga produk',
+                hintText: 'Masukkan harga',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
                   borderSide: BorderSide(color: Colors.grey[400]!),
@@ -260,12 +272,13 @@ class _ProductFormPageState extends State<ProductFormPage> {
               },
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return "Harga produk wajib diisi";
+                  return "Harga wajib diisi";
                 }
                 if (int.tryParse(value) == null) {
                   return "Harga harus berupa angka";
                 }
-                if (int.tryParse(value)! <= 0) {
+                final priceValue = int.tryParse(value)!;
+                if (priceValue <= 0) {
                   return "Harga harus lebih dari 0";
                 }
                 return null;
@@ -277,7 +290,7 @@ class _ProductFormPageState extends State<ProductFormPage> {
     );
   }
 
-  /// Field untuk deskripsi produk
+  /// Field untuk deskripsi produk/berita
   Widget _buildDescriptionField() {
     return Card(
       elevation: 2,
@@ -288,7 +301,7 @@ class _ProductFormPageState extends State<ProductFormPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Deskripsi Produk *',
+              'Konten Berita *',
               style: TextStyle(
                 fontWeight: FontWeight.w600,
                 color: Colors.blue[800],
@@ -299,7 +312,7 @@ class _ProductFormPageState extends State<ProductFormPage> {
             TextFormField(
               maxLines: 4,
               decoration: InputDecoration(
-                hintText: 'Deskripsikan produk secara detail...',
+                hintText: 'Tulis konten berita secara detail...',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
                   borderSide: BorderSide(color: Colors.grey[400]!),
@@ -313,10 +326,10 @@ class _ProductFormPageState extends State<ProductFormPage> {
               onChanged: (value) => setState(() => _description = value),
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return "Deskripsi produk wajib diisi";
+                  return "Konten berita wajib diisi";
                 }
                 if (value.length < 10) {
-                  return "Deskripsi minimal 10 karakter";
+                  return "Konten berita minimal 10 karakter";
                 }
                 return null;
               },
@@ -327,7 +340,7 @@ class _ProductFormPageState extends State<ProductFormPage> {
     );
   }
 
-  /// Dropdown untuk kategori produk
+  /// Dropdown untuk kategori berita
   Widget _buildCategoryField() {
     return Card(
       elevation: 2,
@@ -338,7 +351,7 @@ class _ProductFormPageState extends State<ProductFormPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Kategori Produk *',
+              'Kategori Berita *',
               style: TextStyle(
                 fontWeight: FontWeight.w600,
                 color: Colors.blue[800],
@@ -363,7 +376,7 @@ class _ProductFormPageState extends State<ProductFormPage> {
                   .map((category) => DropdownMenuItem(
                         value: category,
                         child: Text(
-                          category[0].toUpperCase() + category.substring(1),
+                          _getCategoryDisplayName(category),
                           style: const TextStyle(fontSize: 14),
                         ),
                       ))
@@ -373,7 +386,7 @@ class _ProductFormPageState extends State<ProductFormPage> {
               },
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return "Pilih kategori produk";
+                  return "Pilih kategori berita";
                 }
                 return null;
               },
@@ -382,6 +395,24 @@ class _ProductFormPageState extends State<ProductFormPage> {
         ),
       ),
     );
+  }
+
+  /// Helper method untuk mendapatkan display name kategori
+  String _getCategoryDisplayName(String category) {
+    final displayNames = {
+      'transfer': 'Transfer',
+      'update': 'Update',
+      'exclusive': 'Exclusive',
+      'match': 'Pertandingan',
+      'rumor': 'Rumor',
+      'analysis': 'Analisis',
+      'training': 'Training',
+      'special': 'Spesial',
+      'national': 'Nasional',
+      'classic': 'Klasik',
+      'derby': 'Derby',
+    };
+    return displayNames[category] ?? category[0].toUpperCase() + category.substring(1);
   }
 
   /// Field untuk stok produk
@@ -395,7 +426,7 @@ class _ProductFormPageState extends State<ProductFormPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Stok Produk *',
+              'Stok *',
               style: TextStyle(
                 fontWeight: FontWeight.w600,
                 color: Colors.blue[800],
@@ -423,7 +454,7 @@ class _ProductFormPageState extends State<ProductFormPage> {
               },
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return "Stok produk wajib diisi";
+                  return "Stok wajib diisi";
                 }
                 if (int.tryParse(value) == null) {
                   return "Stok harus berupa angka";
@@ -451,7 +482,7 @@ class _ProductFormPageState extends State<ProductFormPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Rating Produk *',
+              'Rating *',
               style: TextStyle(
                 fontWeight: FontWeight.w600,
                 color: Colors.blue[800],
@@ -479,7 +510,7 @@ class _ProductFormPageState extends State<ProductFormPage> {
               },
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return "Rating produk wajib diisi";
+                  return "Rating wajib diisi";
                 }
                 if (double.tryParse(value) == null) {
                   return "Rating harus berupa angka";
@@ -508,7 +539,7 @@ class _ProductFormPageState extends State<ProductFormPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Nama Brand',
+              'Nama Sumber Berita',
               style: TextStyle(
                 fontWeight: FontWeight.w600,
                 color: Colors.blue[800],
@@ -519,7 +550,7 @@ class _ProductFormPageState extends State<ProductFormPage> {
             TextFormField(
               initialValue: 'brand',
               decoration: InputDecoration(
-                hintText: 'Masukkan nama brand',
+                hintText: 'Masukkan nama sumber berita',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
                   borderSide: BorderSide(color: Colors.grey[400]!),
@@ -528,7 +559,7 @@ class _ProductFormPageState extends State<ProductFormPage> {
                   borderRadius: BorderRadius.circular(8),
                   borderSide: BorderSide(color: Colors.blue[400]!),
                 ),
-                prefixIcon: Icon(Icons.business, color: Colors.purple[600]),
+                prefixIcon: Icon(Icons.source, color: Colors.purple[600]),
               ),
               onChanged: (value) => setState(() => _brandName = value),
             ),
@@ -549,7 +580,7 @@ class _ProductFormPageState extends State<ProductFormPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Gambar Produk (Opsional)',
+              'Gambar Berita (Opsional)',
               style: TextStyle(
                 fontWeight: FontWeight.w600,
                 color: Colors.blue[800],
@@ -558,15 +589,15 @@ class _ProductFormPageState extends State<ProductFormPage> {
             ),
             const SizedBox(height: 12),
             _buildThumbnailField(
-              'Thumbnail 1',
-              'URL gambar utama produk',
+              'Gambar Utama',
+              'URL gambar utama berita',
               _thumbnail1,
               (value) => setState(() => _thumbnail1 = value),
               1,
             ),
             const SizedBox(height: 12),
             _buildThumbnailField(
-              'Thumbnail 2',
+              'Gambar Tambahan 1',
               'URL gambar tambahan (opsional)',
               _thumbnail2,
               (value) => setState(() => _thumbnail2 = value),
@@ -574,7 +605,7 @@ class _ProductFormPageState extends State<ProductFormPage> {
             ),
             const SizedBox(height: 12),
             _buildThumbnailField(
-              'Thumbnail 3',
+              'Gambar Tambahan 2',
               'URL gambar tambahan (opsional)',
               _thumbnail3,
               (value) => setState(() => _thumbnail3 = value),
@@ -624,7 +655,7 @@ class _ProductFormPageState extends State<ProductFormPage> {
     );
   }
 
-  /// Switch untuk menandai produk sebagai featured
+  /// Switch untuk menandai berita sebagai featured
   Widget _buildFeaturedSwitch() {
     return Card(
       elevation: 2,
@@ -644,7 +675,7 @@ class _ProductFormPageState extends State<ProductFormPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
-                    'Produk Unggulan',
+                    'Berita Unggulan',
                     style: TextStyle(
                       fontWeight: FontWeight.w600,
                       fontSize: 16,
@@ -653,8 +684,8 @@ class _ProductFormPageState extends State<ProductFormPage> {
                   ),
                   Text(
                     _isFeatured
-                        ? 'Produk akan ditampilkan sebagai unggulan'
-                        : 'Produk akan ditampilkan sebagai biasa',
+                        ? 'Berita akan ditampilkan sebagai unggulan'
+                        : 'Berita akan ditampilkan sebagai biasa',
                     style: TextStyle(
                       color: Colors.grey[600],
                       fontSize: 12,
@@ -675,7 +706,7 @@ class _ProductFormPageState extends State<ProductFormPage> {
     );
   }
 
-  /// Tombol submit form dengan error handling yang diperbaiki
+  /// Tombol submit form dengan integrasi ke Django endpoint
   Widget _buildSubmitButton(CookieRequest request) {
     return SizedBox(
       width: double.infinity,
@@ -691,6 +722,7 @@ class _ProductFormPageState extends State<ProductFormPage> {
           shadowColor: Colors.blue[200],
         ),
         onPressed: () async {
+          // Validasi form sebelum submit
           if (_formKey.currentState!.validate()) {
             _formKey.currentState!.save();
             
@@ -706,7 +738,7 @@ class _ProductFormPageState extends State<ProductFormPage> {
             );
 
             try {
-              // Siapkan data untuk dikirim
+              // Siapkan data sesuai dengan struktur yang diharapkan Django view
               final Map<String, dynamic> productData = {
                 "name": _name,
                 "price": _price,
@@ -723,31 +755,25 @@ class _ProductFormPageState extends State<ProductFormPage> {
               };
 
               // Debug: Print data yang akan dikirim
-              print('📤 Mengirim data produk: $productData');
+              print('📤 Mengirim data ke Django: $productData');
 
-              // Kirim data ke endpoint Django dengan URL yang sesuai
+              // Kirim data ke endpoint create_product_flutter di Django
               final response = await request.postJson(
-                "$_baseUrl/create-product-flutter/",
+                "$_baseUrl/create-product-flutter/", // Sesuai dengan URL di urls.py
                 jsonEncode(productData),
               );
 
               // Debug: Print response dari server
-              print('📥 Response dari server: $response');
-              print('📋 Tipe response: ${response.runtimeType}');
+              print('📥 Response dari Django: $response');
 
               // Tutup loading indicator
               if (context.mounted) {
                 Navigator.of(context).pop();
               }
 
-              // Validasi struktur response
-              if (response is! Map<String, dynamic>) {
-                throw FormatException('Response tidak dalam format JSON yang valid');
-              }
-
-              // Handle response berdasarkan status
+              // Handle response berdasarkan status dari Django
               if (response['status'] == 'success') {
-                _showSuccessDialog(context);
+                _showSuccessDialog(context, response);
               } else {
                 final errorMessage = response['message'] ?? 'Terjadi kesalahan yang tidak diketahui';
                 _showErrorDialog(context, errorMessage);
@@ -759,17 +785,17 @@ class _ProductFormPageState extends State<ProductFormPage> {
                 Navigator.of(context).pop();
                 _showErrorDialog(
                   context, 
-                  'Format data tidak valid: ${e.message}\n\nPastikan server Django berjalan dan endpoint benar.'
+                  'Format data tidak valid: ${e.message}'
                 );
               }
               print('❌ FormatException: ${e.message}');
             } on Exception catch (e) {
-              // Handle other exceptions
+              // Handle other exceptions (network, server error, dll)
               if (context.mounted) {
                 Navigator.of(context).pop();
                 _showErrorDialog(
                   context, 
-                  'Koneksi gagal: ${e.toString()}\n\nPeriksa:\n1. Koneksi internet\n2. Server Django berjalan\n3. URL endpoint: $_baseUrl'
+                  'Koneksi gagal: ${e.toString()}'
                 );
               }
               print('❌ Exception: $e');
@@ -782,7 +808,7 @@ class _ProductFormPageState extends State<ProductFormPage> {
             Icon(Icons.save_alt_rounded, size: 24),
             SizedBox(width: 8),
             Text(
-              "Simpan Produk",
+              "Simpan Berita",
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -794,8 +820,10 @@ class _ProductFormPageState extends State<ProductFormPage> {
     );
   }
 
-  /// Menampilkan dialog sukses
-  void _showSuccessDialog(BuildContext context) {
+  /// Menampilkan dialog sukses dengan data dari response Django
+  void _showSuccessDialog(BuildContext context, Map<String, dynamic> response) {
+    final productData = response['product_data'] ?? {};
+    
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -806,7 +834,25 @@ class _ProductFormPageState extends State<ProductFormPage> {
             Text('Berhasil!'),
           ],
         ),
-        content: const Text('Produk berhasil ditambahkan ke katalog.'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Berita berhasil ditambahkan ke katalog.'),
+            const SizedBox(height: 12),
+            if (productData.isNotEmpty) ...[
+              const Text(
+                'Detail:',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              Text('Judul: ${productData['name'] ?? '-'}'),
+              Text('Kategori: ${_getCategoryDisplayName(productData['category'] ?? '')}'),
+              Text('Harga: ${productData['formatted_price'] ?? '-'}'),
+              Text('ID: ${productData['id'] ?? response['product_id'] ?? '-'}'),
+            ],
+          ],
+        ),
         actions: [
           TextButton(
             onPressed: () {
@@ -816,7 +862,7 @@ class _ProductFormPageState extends State<ProductFormPage> {
                 MaterialPageRoute(builder: (context) => MyHomePage()),
               );
             },
-            child: const Text('OK'),
+            child: const Text('Kembali ke Menu'),
           ),
         ],
         shape: RoundedRectangleBorder(
@@ -826,7 +872,7 @@ class _ProductFormPageState extends State<ProductFormPage> {
     );
   }
 
-  /// Menampilkan dialog error dengan informasi yang lebih detail
+  /// Menampilkan dialog error dengan informasi yang detail
   void _showErrorDialog(BuildContext context, String message) {
     showDialog(
       context: context,
@@ -835,7 +881,7 @@ class _ProductFormPageState extends State<ProductFormPage> {
           children: [
             Icon(Icons.error_outline, color: Colors.red, size: 28),
             SizedBox(width: 8),
-            Text('Gagal Menyimpan Produk'),
+            Text('Gagal Menyimpan Berita'),
           ],
         ),
         content: SingleChildScrollView(
@@ -846,13 +892,15 @@ class _ProductFormPageState extends State<ProductFormPage> {
               Text(message),
               const SizedBox(height: 16),
               const Text(
-                'Tips:',
+                'Tips Pemecahan Masalah:',
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
               const Text('• Pastikan server Django berjalan'),
-              const Text('• Periksa koneksi internet'),
-              const Text('• Cek log server untuk detail error'),
+              const Text('• Periksa koneksi internet Anda'),
+              const Text('• Pastikan Anda sudah login'),
+              const Text('• Cek URL endpoint: /create-product-flutter/'),
+              const Text('• Verifikasi data yang diinput sudah valid'),
             ],
           ),
         ),
@@ -864,7 +912,10 @@ class _ProductFormPageState extends State<ProductFormPage> {
           TextButton(
             onPressed: () {
               Navigator.of(context).pop();
-              _buildSubmitButton(context.read<CookieRequest>());
+              // Coba submit lagi
+              if (_formKey.currentState!.validate()) {
+                _buildSubmitButton(context.read<CookieRequest>());
+              }
             },
             child: const Text('Coba Lagi'),
           ),

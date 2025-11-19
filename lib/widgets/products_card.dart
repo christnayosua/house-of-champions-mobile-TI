@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:house_of_champions/screens/menu.dart';
 import 'package:house_of_champions/screens/newlist_form.dart';
@@ -9,10 +11,6 @@ import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 
 class ItemCard extends StatelessWidget {
-  /// Menampilkan kartu dengan ikon dan nama menu.
-  /// [item] berisi data menu yang akan ditampilkan
-  /// [key] untuk identifikasi widget (opsional)
-
   final ItemHomepage item;
 
   const ItemCard(this.item, {super.key});
@@ -22,13 +20,11 @@ class ItemCard extends StatelessWidget {
     final request = context.watch<CookieRequest>();
     
     return Card(
-      // Menentukan elevation dan bentuk kartu
       elevation: 4,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
       ),
       child: Container(
-        // Gradient background untuk efek visual yang lebih menarik
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
@@ -51,7 +47,6 @@ class ItemCard extends StatelessWidget {
           color: Colors.transparent,
           borderRadius: BorderRadius.circular(16),
           child: InkWell(
-            // Efek ripple ketika kartu ditekan
             onTap: () => _handleCardTap(context, request),
             borderRadius: BorderRadius.circular(16),
             splashColor: Colors.white.withOpacity(0.2),
@@ -63,7 +58,6 @@ class ItemCard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  // Container untuk ikon dengan background circle
                   Container(
                     width: 60,
                     height: 60,
@@ -80,7 +74,6 @@ class ItemCard extends StatelessWidget {
                   
                   const SizedBox(height: 12),
                   
-                  // Nama menu
                   Text(
                     item.name,
                     textAlign: TextAlign.center,
@@ -96,7 +89,6 @@ class ItemCard extends StatelessWidget {
                   
                   const SizedBox(height: 4),
                   
-                  // Deskripsi tambahan (opsional) berdasarkan jenis menu
                   _buildSubtitle(context),
                 ],
               ),
@@ -107,7 +99,6 @@ class ItemCard extends StatelessWidget {
     );
   }
 
-  /// Membangun subtitle berdasarkan jenis menu
   Widget _buildSubtitle(BuildContext context) {
     String subtitle = '';
     Color subtitleColor = Colors.white.withOpacity(0.8);
@@ -139,12 +130,9 @@ class ItemCard extends StatelessWidget {
     );
   }
 
-  /// Menangani aksi ketika kartu ditekan
   Future<void> _handleCardTap(BuildContext context, CookieRequest request) async {
-    // Tampilkan snackbar feedback
     _showSnackBar(context, "Kamu telah menekan tombol ${item.name}!");
     
-    // Handle navigasi berdasarkan jenis menu
     switch (item.name) {
       case "Create Product":
         _navigateToCreateProduct(context);
@@ -153,15 +141,13 @@ class ItemCard extends StatelessWidget {
         _navigateToProductsList(context);
         break;
       case "Logout":
-        await _performLogout(context, request);
+        await _showLogoutConfirmation(context, request);
         break;
       default:
-        // Untuk menu lainnya, hanya tampilkan snackbar
         break;
     }
   }
 
-  /// Menampilkan snackbar dengan styling yang konsisten
   void _showSnackBar(BuildContext context, String message) {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
@@ -181,57 +167,58 @@ class ItemCard extends StatelessWidget {
       );
   }
 
-  /// Navigasi ke halaman buat produk
   void _navigateToCreateProduct(BuildContext context) {
     Navigator.push(
       context,
-      PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => const ProductFormPage(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          const begin = Offset(1.0, 0.0);
-          const end = Offset.zero;
-          const curve = Curves.easeInOut;
-          
-          var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-          var offsetAnimation = animation.drive(tween);
-          
-          return SlideTransition(
-            position: offsetAnimation,
-            child: child,
-          );
-        },
-        transitionDuration: const Duration(milliseconds: 300),
-      ),
+      MaterialPageRoute(builder: (context) => const ProductFormPage()),
     );
   }
 
-  /// Navigasi ke halaman daftar produk
   void _navigateToProductsList(BuildContext context) {
     Navigator.push(
       context,
-      PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => const ProductsEntryListPage(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          const begin = Offset(0.0, 1.0);
-          const end = Offset.zero;
-          const curve = Curves.easeInOut;
-          
-          var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-          var offsetAnimation = animation.drive(tween);
-          
-          return SlideTransition(
-            position: offsetAnimation,
-            child: child,
-          );
-        },
-        transitionDuration: const Duration(milliseconds: 300),
-      ),
+      MaterialPageRoute(builder: (context) => const ProductsEntryListPage()),
     );
   }
 
-  /// Melakukan proses logout
+  // TAMBAHKAN: Dialog konfirmasi logout
+  Future<void> _showLogoutConfirmation(BuildContext context, CookieRequest request) async {
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Row(
+          children: [
+            Icon(Icons.logout, color: Colors.blue),
+            SizedBox(width: 8),
+            Text('Konfirmasi Logout'),
+          ],
+        ),
+        content: const Text('Apakah Anda yakin ingin logout?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Batal'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text(
+              'Logout',
+              style: TextStyle(color: Colors.red),
+            ),
+          ),
+        ],
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+      ),
+    );
+
+    if (result == true) {
+      await _performLogout(context, request);
+    }
+  }
+
   Future<void> _performLogout(BuildContext context, CookieRequest request) async {
-    // Tampilkan loading indicator
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -242,16 +229,11 @@ class ItemCard extends StatelessWidget {
       ),
     );
 
-    try {
-      // TODO: Replace the URL with your app's URL and don't forget to add a trailing slash (/)!
-      // To connect Android emulator with Django on localhost, use URL http://10.0.2.2/
-      // If you using chrome, use URL http://localhost:8000
+    try {      
+      final response = await request.logout("http://10.0.2.2:8000/auth/logout/");
       
-      final response = await request.logout("http://localhost:8000/auth/logout/");
-      
-      // Tutup loading indicator
       if (context.mounted) {
-        Navigator.of(context).pop();
+        Navigator.of(context).pop(); // Tutup loading indicator
         
         if (response['status']) {
           String message = response["message"];
@@ -266,38 +248,21 @@ class ItemCard extends StatelessWidget {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
               ),
+              duration: const Duration(seconds: 3),
             ),
           );
-          
-          // Navigasi ke halaman login
-          Navigator.pushReplacement(
+                    
+          Navigator.pushAndRemoveUntil(
             context,
-            PageRouteBuilder(
-              pageBuilder: (context, animation, secondaryAnimation) => const LoginPage(),
-              transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                const begin = Offset(0.0, -1.0);
-                const end = Offset.zero;
-                const curve = Curves.easeInOut;
-                
-                var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-                var offsetAnimation = animation.drive(tween);
-                
-                return SlideTransition(
-                  position: offsetAnimation,
-                  child: child,
-                );
-              },
-              transitionDuration: const Duration(milliseconds: 400),
-            ),
+            MaterialPageRoute(builder: (context) => const LoginPage()),
+            (Route<dynamic> route) => false,
           );
         } else {
-          // Tampilkan error message
           String message = response["message"];
           _showErrorDialog(context, message);
         }
       }
     } catch (e) {
-      // Handle network errors
       if (context.mounted) {
         Navigator.of(context).pop();
         _showErrorDialog(context, 'Logout gagal: Periksa koneksi internet Anda');
@@ -305,7 +270,6 @@ class ItemCard extends StatelessWidget {
     }
   }
 
-  /// Menampilkan dialog error
   void _showErrorDialog(BuildContext context, String message) {
     showDialog(
       context: context,

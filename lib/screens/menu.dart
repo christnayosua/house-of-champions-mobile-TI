@@ -16,6 +16,7 @@ class MyHomePage extends StatelessWidget {
     ItemHomepage("All Products", Icons.list, Colors.blue),
     ItemHomepage("My Products", Icons.shopping_bag, Colors.green),
     ItemHomepage("Create Product", Icons.add_circle, Colors.red),
+    ItemHomepage("Logout", Icons.logout, Colors.red),
   ];
 
   // Mengintegrasikan infocard dan itemcard untuk ditampilkan di MyHomePage
